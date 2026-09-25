@@ -5,3 +5,9 @@ def test_laya_loads():
     agent = load_laya()
 
     assert agent is not None
+
+
+def test_app_imports():
+    from app.main import app
+
+    assert app is not None
