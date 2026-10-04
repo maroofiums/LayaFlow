@@ -3,7 +3,7 @@ from app.decisions.questions import QUESTIONS
 from app.decisions.schemas import SupportRequest
 
 
-class DecisionRequest:
+class DecisionEngine:
 
     def __init__(self):
         self.agent = load_laya()

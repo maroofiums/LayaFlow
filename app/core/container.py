@@ -1,5 +1,5 @@
-from app.decisions.engine import DecisionRequest
+from app.decisions.engine import DecisionEngine
+from app.workflows.orchestrator import WorkflowOrchestrator
 
-
-decision_engine = DecisionRequest()
-decision_request = decision_engine
+decision_engine = DecisionEngine()
+workflow_orchestrator = WorkflowOrchestrator()
