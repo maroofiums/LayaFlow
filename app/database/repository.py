@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.database.models import RequestRecord
+from app.database.models import RequestRecord, WorkflowEvent
 
 
 def create_request(
@@ -62,3 +62,38 @@ def update_request_decision(
     db.refresh(request)
 
     return request
+
+
+
+def create_event(
+    db: Session,
+    request_id: int,
+    event_type: str,
+    description: str | None = None,
+) -> WorkflowEvent:
+
+    event = WorkflowEvent(
+        request_id=request_id,
+        event_type=event_type,
+        description=description,
+    )
+
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+
+    return event
+
+
+
+def get_request_events(
+    db: Session,
+    request_id: int,
+) -> list[WorkflowEvent]:
+
+    return (
+        db.query(WorkflowEvent)
+        .filter(WorkflowEvent.request_id == request_id)
+        .order_by(WorkflowEvent.created_at.asc())
+        .all()
+    )

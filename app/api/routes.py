@@ -10,12 +10,15 @@ from app.database.repository import (
     get_request,
     get_requests,
     update_request_decision,
+    get_request_events
 )
 from app.decisions.schemas import SupportRequest
 from app.api.schemas import (
     ProcessRequestResponse,
     RequestResponse
 )
+
+
 
 router = APIRouter(
     prefix="/api",
@@ -52,3 +55,25 @@ def retrieve_request(
         raise HTTPException(status_code=404, detail="Request not found")
 
     return request
+
+
+@router.get("/requests/{request_id}/events")
+def request_events(
+    request_id: int,
+    db: Session = Depends(get_db),
+):
+    request = get_request(
+        db,
+        request_id,
+    )
+
+    if request is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Request not found",
+        )
+
+    return get_request_events(
+        db,
+        request_id,
+    )

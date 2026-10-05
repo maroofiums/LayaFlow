@@ -7,7 +7,7 @@ from app.database.repository import (
 from app.decisions.engine import DecisionEngine
 from app.decisions.schemas import SupportRequest
 from app.workflows.orchestrator import WorkflowOrchestrator
-
+from app.workflows.events import record_event
 
 
 class RequestService:
@@ -31,13 +31,47 @@ class RequestService:
             description = request.description,
         )
 
+        record_event(
+            db=db,
+            request_id=db_request.id,
+            event_type="request_created",
+            description="Support request created."
+        )
+
+        record_event(
+            db=db,
+            request_id=db_request.id,
+            event_type="processing_started",
+            description="Support send to decision engine."
+        )
+
         decision = self.decision_engine.decide(
             request
+        )
+
+        record_event(
+            db=db,
+            request_id=db_request.id,
+            event_type="decision_made",
+            description=(
+                f"Category={decision.category.value}, "
+                f"Priority={decision.priority.value}, "
+                f"EscalationProbability={decision.escalation_probability.value:.3f}, "
+            )
         )
 
         workflow = self.workflow_orchestrator.execute(
             decision
         )
+
+
+        record_event(
+            db=db,
+            request_id=db_request.id,
+            event_type=workflow.status.value,
+            description=workflow.action
+        )
+
 
         update_request_decision(
             db = db,
